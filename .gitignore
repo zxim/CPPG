@@ -1,0 +1,23 @@
+# 책 사진은 저작권 문제로 절대 올리지 않음
+*.jpg
+*.jpeg
+*.png
+*.heic
+*.webp
+!web/public/*.svg
+
+# 빌드 산출물 / 의존성 (GitHub Actions가 빌드함)
+node_modules/
+web/dist/
+
+# OS / 에디터
+.DS_Store
+Thumbs.db
+desktop.ini
+*.log
+
+# 외부 자료 원본(KISA·CPPG 홈페이지 배포물)은 저장소에 올리지 않음
+자료/원본/
+
+# 필기·자료·퀴즈 원문 전체는 올리지 않음. 암호화본 web/public/content.enc 만 커밋한다.
+파트*/
