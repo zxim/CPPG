@@ -183,29 +183,24 @@ function Chapter({ chapter, tab, sub }) {
   )
 }
 
-function BookQuiz({ partNum, data, tab }) {
-  const hasQuiz = !!data.practice
-  const hasMd = !!data.content
-  const active = tab === 'all' && hasMd ? 'all' : hasQuiz ? 'quiz' : 'all'
+// 책 수록 적중 예상문제: 연습문제와 동일하게 풀이만 제공 (정답·해설은 "해설 보기"로만 공개)
+function BookQuiz({ partNum, data }) {
   useEffect(() => {
     window.scrollTo(0, 0)
-  }, [partNum, active])
+  }, [partNum])
+  if (!data.practice) {
+    return (
+      <article className="chapter">
+        <p className="notice">이 파트의 예상문제는 아직 준비 중입니다.</p>
+      </article>
+    )
+  }
   return (
     <article className="chapter">
       <p className="crumb">
-        <a href="#/">홈</a> › PART {partNum} · 적중 예상문제 (책)
+        <a href="#/">홈</a> › PART {partNum} · 적중 예상문제 (책) {data.practice.questions.length}문항
       </p>
-      {hasQuiz && hasMd && (
-        <div className="tabs">
-          <a href={`#/p${partNum}q`} className={active === 'quiz' ? 'on' : ''}>
-            문제 풀기 {data.practice.questions.length}
-          </a>
-          <a href={`#/p${partNum}q/all`} className={active === 'all' ? 'on' : ''}>
-            전체 해설
-          </a>
-        </div>
-      )}
-      {active === 'quiz' ? <Quiz chapterId={`p${partNum}q`} data={data.practice} /> : <Md>{data.content}</Md>}
+      <Quiz chapterId={`p${partNum}q`} data={data.practice} />
     </article>
   )
 }
@@ -262,7 +257,7 @@ export default function App() {
   else if (/^p\d+q$/.test(routeId)) {
     const pn = Number(routeId.slice(1, -1))
     const data = findBookQuiz(pn)
-    page = data ? <BookQuiz partNum={pn} data={data} tab={tab} /> : <Home />
+    page = data ? <BookQuiz partNum={pn} data={data} /> : <Home />
   } else {
     const chapter = routeId ? findChapter(routeId) : null
     page = chapter ? <Chapter chapter={chapter} tab={tab} sub={sub} /> : <Home />
