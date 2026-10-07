@@ -198,16 +198,51 @@ function BookQuiz({ partNum, content }) {
 }
 
 /* ---------- 앱 ---------- */
+const OPEN_PARTS_KEY = 'sidebar:openParts'
+
+function loadOpenParts() {
+  try {
+    const v = JSON.parse(localStorage.getItem(OPEN_PARTS_KEY) || 'null')
+    if (Array.isArray(v)) return new Set(v)
+  } catch {
+    // ignore
+  }
+  return new Set([1])
+}
+
 export default function App() {
   const { parts, findChapter, findBookQuiz } = useContent()
   const route = useHashRoute()
   const [theme, toggleTheme] = useTheme()
   const [open, setOpen] = useState(false)
+  const [openParts, setOpenParts] = useState(loadOpenParts)
   const [routeId, tab, sub] = route.split('/')
 
+  // 현재 보고 있는 챕터의 파트는 자동으로 펼친다
+  const currentPart = routeId === 'exam' ? 6 : Number((routeId.match(/^p(\d+)/) || [])[1]) || null
   useEffect(() => {
     setOpen(false)
+    if (currentPart && !openParts.has(currentPart)) {
+      setOpenParts((s) => new Set([...s, currentPart]))
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [route])
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(OPEN_PARTS_KEY, JSON.stringify([...openParts]))
+    } catch {
+      // ignore
+    }
+  }, [openParts])
+
+  const togglePart = (n) =>
+    setOpenParts((s) => {
+      const next = new Set(s)
+      if (next.has(n)) next.delete(n)
+      else next.add(n)
+      return next
+    })
 
   let page
   if (routeId === 'exam') page = <Exam />
@@ -240,17 +275,28 @@ export default function App() {
           홈
         </a>
         {parts.map((p) => (
-          <div key={p.num} className="side-part">
-            <div className="side-part-title">
-              PART {p.num}. {p.title}
-            </div>
-            {p.exam && (
+          <div key={p.num} className={`side-part ${openParts.has(p.num) ? 'open' : ''}`}>
+            <button
+              type="button"
+              className="side-part-title"
+              onClick={() => togglePart(p.num)}
+              aria-expanded={openParts.has(p.num)}
+            >
+              <span className="grow">
+                PART {p.num}. {p.title}
+              </span>
+              <span className="chev" aria-hidden="true">
+                ›
+              </span>
+            </button>
+            {openParts.has(p.num) && p.exam && (
               <a href="#/exam" className={routeId === 'exam' ? 'active' : ''}>
                 <span className="side-tag">모의</span>
                 <span className="grow">실전 모의고사</span>
               </a>
             )}
-            {p.chapterList.map((c) =>
+            {openParts.has(p.num) &&
+              p.chapterList.map((c) =>
               c.empty ? (
                 <span key={c.id} className="side-empty">
                   <span className="side-num">{c.num}</span>
@@ -263,7 +309,7 @@ export default function App() {
                 </a>
               ),
             )}
-            {p.bookQuiz && (
+            {openParts.has(p.num) && p.bookQuiz && (
               <a href={`#/p${p.num}q`} className={routeId === `p${p.num}q` ? 'active' : ''}>
                 <span className="side-tag">문제</span>
                 <span className="grow">적중 예상문제</span>
