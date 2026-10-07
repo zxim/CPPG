@@ -21,3 +21,6 @@ desktop.ini
 
 # 필기·자료·퀴즈 원문 전체는 올리지 않음. 암호화본 web/public/content.enc 만 커밋한다.
 파트*/
+
+# Claude 작업 가이드 (로컬 전용)
+CLAUDE.md
