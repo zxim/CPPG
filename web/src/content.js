@@ -43,7 +43,7 @@ export function buildIndex(entries) {
     if (s.length === 3 && s[2].endsWith('.md') && /^챕터/.test(s[1])) {
       const ch = getChapter(s[0], s[1])
       if (ch) ch.notes = content
-    } else if (s.length === 3 && s[2] === '퀴즈.json') {
+    } else if (s.length === 3 && s[2] === '퀴즈.json' && /^챕터/.test(s[1])) {
       const ch = getChapter(s[0], s[1])
       let data = null
       try {
