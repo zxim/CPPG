@@ -183,16 +183,29 @@ function Chapter({ chapter, tab, sub }) {
   )
 }
 
-function BookQuiz({ partNum, content }) {
+function BookQuiz({ partNum, data, tab }) {
+  const hasQuiz = !!data.practice
+  const hasMd = !!data.content
+  const active = tab === 'all' && hasMd ? 'all' : hasQuiz ? 'quiz' : 'all'
   useEffect(() => {
     window.scrollTo(0, 0)
-  }, [partNum])
+  }, [partNum, active])
   return (
     <article className="chapter">
       <p className="crumb">
-        <a href="#/">홈</a> › PART {partNum}
+        <a href="#/">홈</a> › PART {partNum} · 적중 예상문제 (책)
       </p>
-      <Md>{content}</Md>
+      {hasQuiz && hasMd && (
+        <div className="tabs">
+          <a href={`#/p${partNum}q`} className={active === 'quiz' ? 'on' : ''}>
+            문제 풀기 {data.practice.questions.length}
+          </a>
+          <a href={`#/p${partNum}q/all`} className={active === 'all' ? 'on' : ''}>
+            전체 해설
+          </a>
+        </div>
+      )}
+      {active === 'quiz' ? <Quiz chapterId={`p${partNum}q`} data={data.practice} /> : <Md>{data.content}</Md>}
     </article>
   )
 }
@@ -248,8 +261,8 @@ export default function App() {
   if (routeId === 'exam') page = <Exam />
   else if (/^p\d+q$/.test(routeId)) {
     const pn = Number(routeId.slice(1, -1))
-    const content = findBookQuiz(pn)
-    page = content ? <BookQuiz partNum={pn} content={content} /> : <Home />
+    const data = findBookQuiz(pn)
+    page = data ? <BookQuiz partNum={pn} data={data} tab={tab} /> : <Home />
   } else {
     const chapter = routeId ? findChapter(routeId) : null
     page = chapter ? <Chapter chapter={chapter} tab={tab} sub={sub} /> : <Home />

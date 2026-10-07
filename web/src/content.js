@@ -57,9 +57,20 @@ export function buildIndex(entries) {
       if (!ch) continue
       const file = s[3].replace(/\.md$/, '')
       ch.refs.push({ key: file, label: file.replace(/^\d+\s*/, ''), content })
-    } else if (s.length === 3 && /예상문제/.test(s[1]) && s[2].endsWith('.md')) {
+    } else if (s.length === 3 && /예상문제/.test(s[1])) {
       const part = parseLabel(s[0])
-      if (part) bookQuizByPart.set(part.num, content)
+      if (!part) continue
+      const entry = bookQuizByPart.get(part.num) ?? { content: null, practice: null }
+      if (s[2].endsWith('.md')) entry.content = content
+      else if (s[2] === '퀴즈.json') {
+        try {
+          const data = JSON.parse(content)
+          if (data?.questions?.length) entry.practice = data
+        } catch {
+          // 무시
+        }
+      }
+      bookQuizByPart.set(part.num, entry)
     }
   }
 
