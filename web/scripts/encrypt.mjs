@@ -72,7 +72,7 @@ const plain = Buffer.from(JSON.stringify({ v: 1, builtAt: new Date().toISOString
 const gz = zlib.gzipSync(plain, { level: 9 })
 
 // 2) 키 유도 + 암호화 (브라우저 WebCrypto 와 동일 파라미터)
-const ITER = 200000
+const ITER = 600000 // OWASP 권장(PBKDF2-SHA256). 추측 1회 비용을 높인다
 const key = crypto.pbkdf2Sync(Buffer.from(pass, 'utf8'), Buffer.from(salt, 'base64'), ITER, 32, 'sha256')
 const iv = crypto.randomBytes(12)
 const cipher = crypto.createCipheriv('aes-256-gcm', key, iv)
