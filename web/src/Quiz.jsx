@@ -39,15 +39,19 @@ export default function Quiz({ chapterId, data }) {
   const [answers, setAnswers] = useState(() => loadJSON(storageKey, {}))
   const [order, setOrder] = useState(() => all.map((q) => q.id))
   const [mode, setMode] = useState('all')
+  const [level, setLevel] = useState('all') // all | 하 | 중 | 상
   const [current, setCurrent] = useState(0)
 
   useEffect(() => saveJSON(storageKey, answers), [storageKey, answers])
 
   const byId = useMemo(() => new Map(all.map((q) => [q.id, q])), [all])
-  const visibleIds = useMemo(
-    () => (mode === 'wrong' ? order.filter((id) => answers[id] && answers[id].c !== byId.get(id).answer) : order),
-    [order, mode, answers, byId],
-  )
+  const hasLevels = useMemo(() => all.some((q) => q.difficulty), [all])
+  const visibleIds = useMemo(() => {
+    let ids = order
+    if (level !== 'all') ids = ids.filter((id) => byId.get(id).difficulty === level)
+    if (mode === 'wrong') ids = ids.filter((id) => answers[id] && answers[id].c !== byId.get(id).answer)
+    return ids
+  }, [order, mode, level, answers, byId])
 
   const answered = all.filter((q) => answers[q.id])
   const correctCount = answered.filter((q) => answers[q.id].c === q.answer).length
@@ -67,14 +71,24 @@ export default function Quiz({ chapterId, data }) {
     setCurrent(0)
   }
   const toolbar = (
-    <QuizToolbar {...{ answeredCount: answered.length, correctCount, wrongCount, total: all.length, mode, setMode, reset, reshuffle }} />
+    <QuizToolbar
+      {...{ answeredCount: answered.length, correctCount, wrongCount, total: all.length, mode, setMode, reset, reshuffle }}
+      level={level}
+      setLevel={(l) => {
+        setLevel(l)
+        setCurrent(0)
+      }}
+      hasLevels={hasLevels}
+    />
   )
 
   if (visibleIds.length === 0) {
     return (
       <div className="quiz">
         {toolbar}
-        <p className="quiz-empty">틀린 문제가 없습니다. 전체 모드로 돌아가거나 초기화 후 다시 풀어보세요.</p>
+        <p className="quiz-empty">
+          {mode === 'wrong' ? '틀린 문제가 없습니다. 전체 모드로 돌아가거나 초기화 후 다시 풀어보세요.' : '이 조건에 해당하는 문제가 없습니다.'}
+        </p>
       </div>
     )
   }
@@ -218,7 +232,7 @@ export function QuestionCard({ q, index, total, chosen, revealed, onPick, onReve
   )
 }
 
-function QuizToolbar({ answeredCount, correctCount, wrongCount, total, mode, setMode, reset, reshuffle }) {
+function QuizToolbar({ answeredCount, correctCount, wrongCount, total, mode, setMode, reset, reshuffle, level, setLevel, hasLevels }) {
   return (
     <div className="quiz-toolbar">
       <div className="quiz-score">
@@ -228,6 +242,20 @@ function QuizToolbar({ answeredCount, correctCount, wrongCount, total, mode, set
         <span className="ok">정답 {correctCount}</span>
         <span className="no">오답 {wrongCount}</span>
       </div>
+      {hasLevels && (
+        <div className="quiz-actions quiz-levels" aria-label="난이도">
+          {[
+            ['all', '난이도 전체'],
+            ['하', '하'],
+            ['중', '중'],
+            ['상', '상'],
+          ].map(([v, label]) => (
+            <button type="button" key={v} className={level === v ? 'on' : ''} onClick={() => setLevel(v)}>
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
       <div className="quiz-actions">
         <button type="button" className={mode === 'all' ? 'on' : ''} onClick={() => setMode('all')}>
           전체

@@ -1545,3 +1545,8 @@ button:disabled {
   margin-left: var(--space-2);
 }
 
+
+/* 난이도 필터 줄은 전체 폭 */
+.quiz-levels {
+  flex-basis: 100%;
+}
