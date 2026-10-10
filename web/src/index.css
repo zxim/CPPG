@@ -1550,3 +1550,68 @@ button:disabled {
 .quiz-levels {
   flex-basis: 100%;
 }
+
+/* 지문형·대화형 문제: 단락과 인용(지문 상자) 표현 */
+.md-p {
+  display: block;
+}
+
+.md-p + .md-p {
+  margin-top: var(--space-2);
+}
+
+.quiz-q .md-p {
+  font-weight: 600;
+}
+
+.quiz-q blockquote {
+  display: block;
+  margin: var(--space-2) 0;
+  padding: var(--space-3) var(--space-3);
+  background: var(--surface-2);
+  border-left: 3px solid var(--border);
+  border-radius: 0 var(--radius-s) var(--radius-s) 0;
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.quiz-q blockquote .md-p {
+  font-weight: 400;
+}
+
+.quiz-q blockquote .md-p + .md-p {
+  margin-top: 4px;
+}
+
+.quiz-q ul,
+.quiz-q ol {
+  font-weight: 400;
+  margin: var(--space-1) 0;
+  padding-left: 22px;
+}
+
+.quiz-q table {
+  display: block;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font-weight: 400;
+  font-size: 14px;
+  margin: var(--space-2) 0;
+}
+
+.quiz-q th,
+.quiz-q td {
+  border: 1px solid var(--border);
+  padding: 4px 8px;
+}
+
+.tag.type {
+  background: var(--ink-soft);
+  color: var(--ink);
+}
+
+.choice-text .md-p + .md-p {
+  margin-top: 2px;
+}
+

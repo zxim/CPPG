@@ -19,11 +19,11 @@ export default function Md({ children, className = 'md' }) {
   )
 }
 
+// 문제 지문·선택지·해설용. 단락은 블록 span으로 그려 긴 지문·대화도 줄이 살아 있게 한다.
 const inlineComponents = {
-  p: ({ children }) => <>{children}</>,
+  p: ({ children }) => <span className="md-p">{children}</span>,
 }
 
-// 문제 지문·선택지·해설처럼 한 덩어리 텍스트용 (p 태그 없이 인라인으로)
 export function MdInline({ children }) {
   return (
     <ReactMarkdown {...plugins} components={inlineComponents}>
